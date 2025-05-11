@@ -3,7 +3,8 @@ import React from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-
+import { useRouter } from "next/navigation";
+import { createUser } from "@/lib/actions/patient.actions";
 type FormValues = {
   fullname: string;
   email: string;
@@ -11,21 +12,47 @@ type FormValues = {
 };
 
 const PatientForm = () => {
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>();
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log(data);
-    reset();
-  };
+    const router = useRouter();
+
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>({
+  shouldFocusError: false // 👈 prevents react-hook-form from calling elm.focus()
+});
+
+const handleReactFormSubmit = (event: React.FormEvent) => {
+  event.preventDefault();
+  handleSubmit(onSubmit)(event);
+};
+function isValidPhoneNumber(phone: string): boolean {
+  const cleaned = `+${phone.replace(/[^\d]/g, '')}`;
+  const phoneRegex = /^\+[1-9]\d{7,14}$/; // E.164 format
+  return phoneRegex.test(cleaned);
+}
 
 
-  function isValidPhoneNumber(phone: string): boolean {
-    const phoneRegex = /^\+?[1-9]\d{1,14}$/; 
-    return phoneRegex.test(phone);
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+     const formattedPhone = `+91${data.phone.replace(/\D/g, '')}`;
+      try {
+      const user = {
+        name: data.fullname,
+        email: data.email,
+        phone:  formattedPhone,
+      };
+
+      const newUser = await createUser(user);
+console.log("newUser", newUser);
+      if (newUser) {
+        router.push(`/patient/${newUser.$id}/register`);
+        reset();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-lg mx-auto p-5 mt-13 bg-white rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.1)] space-y-4 w-auto">
+    <form onSubmit={handleReactFormSubmit} className="max-w-lg mx-auto p-5 mt-13 bg-white rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.1)] space-y-4 w-auto">
 
       <h2 className="text-2xl font-semibold text-gray-700 text-center">Patient Form</h2>
 
@@ -65,27 +92,28 @@ const PatientForm = () => {
       {/* Phone Number */}
       <div className="flex flex-col">
         <label className="text-gray-700 font-medium w-full mb-2">Phone:</label>
-        <Controller
-          name="phone"
-          control={control}
-          rules={{
-            required: "Phone number is required",
-            validate: value => isValidPhoneNumber(value) || "Invalid phone number"
-          }}
-          render={({ field }) => (
-            <PhoneInput
-              {...field}
-              country="in"
-              inputProps={{
-                name: 'phone',
-                required: true,
-                autoFocus: true
-              }}
-              containerClass="!w-full"
-              inputClass="!w-full p-6 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500"
-            />
-          )}
-        />
+      <Controller
+  name="phone"
+  control={control}
+  rules={{
+    required: "Phone number is required",
+    validate: value => isValidPhoneNumber(value) || "Invalid phone number"
+  }}
+  render={({ field }) => (
+    <PhoneInput
+      {...field}
+      country="in"
+      inputProps={{
+        name: 'phone',
+        required: true
+      }}
+      onChange={(value) => field.onChange(value)}
+      containerClass="!w-full"
+      inputClass="!w-full p-6 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500"
+    />
+  )}
+/>
+
         <div className='mb-1'>
           {errors.phone && <span className="absolute text-red-500 text-sm ">{errors.phone.message}</span>}
         </div>
