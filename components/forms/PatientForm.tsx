@@ -16,7 +16,7 @@ const PatientForm = () => {
     const router = useRouter();
 
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>({
-  shouldFocusError: false // 👈 prevents react-hook-form from calling elm.focus()
+  shouldFocusError: false 
 });
 
 const handleReactFormSubmit = (event: React.FormEvent) => {
@@ -31,7 +31,7 @@ function isValidPhoneNumber(phone: string): boolean {
 
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-     const formattedPhone = `+91${data.phone.replace(/\D/g, '')}`;
+     const formattedPhone = `+${data.phone.replace(/\D/g, '')}`;
       try {
       const user = {
         name: data.fullname,
@@ -40,9 +40,8 @@ function isValidPhoneNumber(phone: string): boolean {
       };
 
       const newUser = await createUser(user);
-console.log("newUser", newUser);
       if (newUser) {
-        router.push(`/patient/${newUser.$id}/register`);
+        router.push(`/patients/${newUser.$id}/register`);
         reset();
       }
     } catch (error) {
