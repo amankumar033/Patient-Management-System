@@ -1,12 +1,16 @@
 'use client';
-import React from 'react'
-import Image from 'next/image'
+import React from 'react';
+import Image from 'next/image';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { useDropzone } from 'react-dropzone';
-    import DatePicker from 'react-datepicker';
-    import 'react-datepicker/dist/react-datepicker.css';
-    import { Listbox } from '@headlessui/react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { Listbox } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { registerPatient } from "@/lib/actions/patient.actions";
+
+import { useParams, useRouter } from 'next/navigation';
+
 const providers = [
   { name: 'DR Green', value: 'dr-green', icon: '/assets/images/dr-green.png' },
   { name: 'DR Remirez', value: 'dr-remirez', icon: '/assets/images/dr-remirez.png' },
@@ -14,44 +18,77 @@ const providers = [
   { name: 'DR Lee', value: 'dr-lee', icon: '/assets/images/dr-lee.png' },
   { name: 'DR Livingstone', value: 'dr-livingstone', icon: '/assets/images/dr-livingstone.png' },
 ];
+
+
+
 type FormValues = {
   fullname: string;
   email: string;
-  phone: Number;
-  birthDate: Date | null;
-  gender: string;
-    address: string;
-    occupation: string;
-    emergencyContactName: string;
-    emergencyContactNumber: Number;
-    primaryPhysician: string;
-    insuranceProvider: string;
-    insurancePolicyNumber: string;
-    allergies: string | undefined;
-    currentMedications: string | undefined;
-    familyMedicalHistory: string | undefined;
-    pastMedicalHistory: string | undefined;
-    identificationType: string | undefined;
-    identificationNumber: string | undefined;
-    identificationDocument: FormData | undefined;
-      document: File[];
-    privacyConsent: boolean;
-    privacyConsent1: boolean;
-    privacyConsent2: boolean;
-    privacyConsent3: boolean;
-    provider: string;
+  phone: number;
+  birthDate: Date;
+  gender: Gender;
+  address: string;
+  occupation: string;
+  emergencyContactName: string;
+  emergencyContactNumber: string;
+  primaryPhysician: string;
+  insuranceProvider: string;
+  insurancePolicyNumber: string;
+  allergies: string | undefined;
+  currentMedications: string | undefined;
+  familyMedicalHistory: string | undefined;
+  pastMedicalHistory: string | undefined;
+  identificationType: string | undefined;
+  identificationDocumentId: string | undefined;
+  identificationDocument: FormData | undefined;
+  document: File[];
+  privacyConsent: boolean;
+  privacyConsent1: boolean;
+  privacyConsent2: boolean;
+  privacyConsent3: boolean;
 
 };
-const handleReactFormSubmit = (onSubmit: SubmitHandler<FormValues>, handleSubmit: any) => (event: React.FormEvent) => {
-  event.preventDefault();
-  handleSubmit(onSubmit)(event);
-};
-const register = () => {
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>();
-  const onSubmit: SubmitHandler<FormValues> = data => {
+
+const Register = () => {
+const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>();
+const params = useParams();
+const router = useRouter();
+  const userid = params?.userid as string;
+
+
+  const onSubmit: SubmitHandler<FormValues> = async data => {
+    const userId = typeof userid === 'string' ? userid : '';
+    
+    if (!data.birthDate) {
+      console.error("Birth date is required");
+      return;
+    }
+    
+  const {
+    privacyConsent1,
+    privacyConsent2,
+    privacyConsent3,
+    currentMedications,
+    fullname,
+    phone,
+    gender,
+    ...rest
+  } = data;
+
+  const privacyConsent = privacyConsent1 && privacyConsent2 && privacyConsent3;
+
+    const patient = await registerPatient({
+      ...data,
+      userId: userId, 
+      phone: data.phone.toString(),  
+    });
+if (patient) {
+router.push(`/patients/${patient.$id}/new-appointment`);
+}
     console.log(data);
-    reset();
+    reset(); // Reset form after submission
   };
+
   return (
     <div className='overflow-y-clip px-30 bg-gray-200 h-full w-full overflow-x-hidden'>
         <section className='pl-15 py-5 bg-white rounded flex  h-full w-full '>
@@ -73,7 +110,7 @@ const register = () => {
             </div>
   <div className='px-5 w-full'>
      <h1 className='text-2xl font-semibold text-[#004080]'>Personal Information</h1>
-                 <form onSubmit={handleReactFormSubmit(onSubmit, handleSubmit)}  className="flex flex-col gap-2 max-w-lg  mt-2  w-full">
+                 <form onSubmit={handleSubmit(onSubmit)}  className="flex flex-col gap-2 max-w-lg  mt-2  w-full">
       {/* Full Name */}
       <div className="flex flex-col ">
         <label className="text-gray-700 text-sm font-medium">Full Name:</label>
@@ -246,8 +283,8 @@ const register = () => {
  <label className="text-gray-700 text-sm font-medium mb-2">Primary care Physician:</label>
         <Controller
         control={control}
-        name="provider"
-        rules={{ required: 'Provider is required' }}
+        name="primaryPhysician"
+        rules={{ required: 'Primary Physician is required' }}
         render={({ field }) => {
           const selected = providers.find(p => p.value === field.value) || providers[0];
           return (
@@ -294,8 +331,8 @@ const register = () => {
         }}
       />
         <div className='mb-1'>
-          {errors.provider && (
-            <span className=" text-red-500 text-sm ">{errors.provider.message}</span>
+          {errors.primaryPhysician && (
+            <span className=" text-red-500 text-sm ">{errors.primaryPhysician.message}</span>
           )}
         </div>
       </div>
@@ -413,13 +450,13 @@ const register = () => {
  <div className="flex flex-col relative w-full">
         <label className="text-gray-700 text-sm font-medium">Identification Number:</label>
         <input
-          {...register("identificationNumber", { required: "Identification Number is required" })}
+          {...register("identificationDocumentId", { required: "Identification Number is required" })}
           placeholder="ex: 123456789"
           className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <div className='mb-1'>
-          {errors.identificationNumber && (
-            <span className=" text-red-500 text-sm ">{errors.identificationNumber.message}</span>
+          {errors.identificationDocumentId && (
+            <span className=" text-red-500 text-sm ">{errors.identificationDocumentId.message}</span>
           )}
         </div>
       </div>
@@ -534,4 +571,4 @@ const register = () => {
   )
 }
 
-export default register;
+export default Register;

@@ -11,6 +11,7 @@ import {
   databases,
   storage,
   users,
+  
 } from "../appwrite.config";
 import { parseStringify } from "../utils";
 interface RegisterPageProps {
@@ -18,6 +19,8 @@ interface RegisterPageProps {
     userid: string;
   };
 }
+
+
 
 // CREATE APPWRITE USER
 export const createUser = async (user: CreateUserParams) => {
@@ -28,7 +31,7 @@ export const createUser = async (user: CreateUserParams) => {
       user.email,
       user.phone,
       undefined,
-      user.name
+      user.fullname
     );
     return parseStringify(newuser);
   } catch (error: any) {
@@ -60,33 +63,45 @@ export const createUser = async (user: CreateUserParams) => {
 
 // REGISTER PATIENT
 
-// export const registerPatient = async ({
-//   document,
-//   ...patient
-// }: RegisterUserParams) => {
-//   try {
-//     // `document` is assumed to be the uploaded file array
-//     const file = document?.[0];
+export const registerPatient = async ({
+  document,
+  userId,  
+  ...patient
+}: RegisterUserParams & { userId: string }) => {
+  try {
+    // Step 1: Upload the document if it exists
+    const file = document?.[0];
 
-//     if (!(file instanceof Blob)) {
-//       throw new Error("Invalid file provided.");
-//     }
 
-//     // Upload file to Appwrite Storage
-//     const uploadedFile = await storage.createFile(BUCKET_ID!, ID.unique(), file);
+    let fileId = "";
+    if (file instanceof Blob) {
+      const convertedFile = new File([file], "uploadedFile", { type: file.type });
+      const uploadedFile = await storage.createFile(BUCKET_ID!, ID.unique(), convertedFile);
+      fileId = uploadedFile.$id;
+    }
 
-//     console.log("Uploaded file:", uploadedFile);
+    // Step 2: Create patient document and link to the userId
+    const patientData = {
+      ...patient,
+      userId,        // Link the patient record to the logged-in user's ID
+      identificationDocumentId: fileId, // Store the uploaded file's ID
+    };
 
-//     // You can now use uploadedFile.$id to associate it with the patient
-//     // Submit patient registration with the uploaded file reference
-//     // await db.createDocument(...)
+    // Step 3: Create the patient document in Appwrite
+    const response = await databases.createDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      ID.unique(),
+      patientData
+    );
 
-//   } catch (error) {
-//     console.error("Error in registerPatient:", error);
-//     throw error;
-//   }
-// };
-
+    console.log("Patient registered and linked to user:", response);
+    return response;
+  } catch (error) {
+    console.error("Error in registerPatient:", error);
+    throw error;
+  }
+};
 //     // Create new patient document -> https://appwrite.io/docs/references/cloud/server-nodejs/databases#createDocument
 //     const newPatient = await databases.createDocument(
 //       DATABASE_ID!,
