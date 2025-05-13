@@ -13,6 +13,11 @@ import {
   users,
 } from "../appwrite.config";
 import { parseStringify } from "../utils";
+interface RegisterPageProps {
+  params: {
+    userid: string;
+  };
+}
 
 // CREATE APPWRITE USER
 export const createUser = async (user: CreateUserParams) => {
@@ -53,24 +58,34 @@ export const createUser = async (user: CreateUserParams) => {
 //   }
 // };
 
-// // REGISTER PATIENT
+// REGISTER PATIENT
+
 // export const registerPatient = async ({
-//   identificationDocument,
+//   document,
 //   ...patient
 // }: RegisterUserParams) => {
 //   try {
-//     // Upload file ->  // https://appwrite.io/docs/references/cloud/client-web/storage#createFile
-//     let file;
-//     if (identificationDocument) {
-//       const inputFile =
-//         identificationDocument &&
-//         InputFile.fromBlob(
-//           identificationDocument?.get("blobFile") as Blob,
-//           identificationDocument?.get("fileName") as string
-//         );
+//     // `document` is assumed to be the uploaded file array
+//     const file = document?.[0];
 
-//       file = await storage.createFile(BUCKET_ID!, ID.unique(), inputFile);
+//     if (!(file instanceof Blob)) {
+//       throw new Error("Invalid file provided.");
 //     }
+
+//     // Upload file to Appwrite Storage
+//     const uploadedFile = await storage.createFile(BUCKET_ID!, ID.unique(), file);
+
+//     console.log("Uploaded file:", uploadedFile);
+
+//     // You can now use uploadedFile.$id to associate it with the patient
+//     // Submit patient registration with the uploaded file reference
+//     // await db.createDocument(...)
+
+//   } catch (error) {
+//     console.error("Error in registerPatient:", error);
+//     throw error;
+//   }
+// };
 
 //     // Create new patient document -> https://appwrite.io/docs/references/cloud/server-nodejs/databases#createDocument
 //     const newPatient = await databases.createDocument(

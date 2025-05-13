@@ -2,36 +2,43 @@
 import React from 'react'
 import Image from 'next/image'
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useDropzone } from 'react-dropzone';
     import DatePicker from 'react-datepicker';
     import 'react-datepicker/dist/react-datepicker.css';
     import { Listbox } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 const providers = [
-  { name: 'Google', value: 'google', icon: '/assets/icons/google.png' },
-  { name: 'Facebook', value: 'facebook', icon: '/assets/icons/facebook.png' },
-  { name: 'GitHub', value: 'github', icon: '/assets/icons/github.png' },
+  { name: 'DR Green', value: 'dr-green', icon: '/assets/images/dr-green.png' },
+  { name: 'DR Remirez', value: 'dr-remirez', icon: '/assets/images/dr-remirez.png' },
+  { name: 'DR Powell', value: 'dr-powell', icon: '/assets/images/dr-powell.png' },
+  { name: 'DR Lee', value: 'dr-lee', icon: '/assets/images/dr-lee.png' },
+  { name: 'DR Livingstone', value: 'dr-livingstone', icon: '/assets/images/dr-livingstone.png' },
 ];
 type FormValues = {
   fullname: string;
   email: string;
-  phone: string;
+  phone: Number;
   birthDate: Date | null;
   gender: string;
     address: string;
     occupation: string;
     emergencyContactName: string;
-    emergencyContactNumber: string;
+    emergencyContactNumber: Number;
     primaryPhysician: string;
     insuranceProvider: string;
     insurancePolicyNumber: string;
     allergies: string | undefined;
-    currentMedication: string | undefined;
+    currentMedications: string | undefined;
     familyMedicalHistory: string | undefined;
     pastMedicalHistory: string | undefined;
     identificationType: string | undefined;
     identificationNumber: string | undefined;
     identificationDocument: FormData | undefined;
+      document: File[];
     privacyConsent: boolean;
+    privacyConsent1: boolean;
+    privacyConsent2: boolean;
+    privacyConsent3: boolean;
     provider: string;
 
 };
@@ -39,15 +46,16 @@ const handleReactFormSubmit = (onSubmit: SubmitHandler<FormValues>, handleSubmit
   event.preventDefault();
   handleSubmit(onSubmit)(event);
 };
-const Register = () => {
-  const { register, handleSubmit, control, formState: { errors } } = useForm<FormValues>();
+const register = () => {
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>();
   const onSubmit: SubmitHandler<FormValues> = data => {
     console.log(data);
+    reset();
   };
   return (
-    <div className='  px-30 bg-gray-200 h-screen w-screen'>
-        <section className='pl-15 py-5 bg-white rounded flex  h-full w-full gap-10'>
-            <div className='flex flex-col gap-5'>
+    <div className='overflow-y-clip px-30 bg-gray-200 h-full w-full overflow-x-hidden'>
+        <section className='pl-15 py-5 bg-white rounded flex  h-full w-full '>
+            <div className='flex flex-col gap-5 z-5'>
             <div className='flex flex-col gap-10'>
             <div className=''>
                 <Image
@@ -58,21 +66,23 @@ const Register = () => {
                             className=" mt-2 h-15 w-auto object-contain"
                           />
             </div>
-            <div className='px-5'>
+   <div className='px-5'>
                 <h1 className='text-2xl font-semibold text-[#004080]'>Welcome 👋</h1>
                 <p className='text-sm'>let us know more about yourself</p>
             </div>
             </div>
-  <div className='px-5'>
+  <div className='px-5 w-full'>
      <h1 className='text-2xl font-semibold text-[#004080]'>Personal Information</h1>
-                 <form onSubmit={handleReactFormSubmit(onSubmit, handleSubmit)}  className="flex flex-col gap-2 max-w-lg  mt-4  w-auto">
+                 <form onSubmit={handleReactFormSubmit(onSubmit, handleSubmit)}  className="flex flex-col gap-2 max-w-lg  mt-2  w-full">
       {/* Full Name */}
       <div className="flex flex-col ">
         <label className="text-gray-700 text-sm font-medium">Full Name:</label>
         <input
-          {...register("fullname", { required: "Full name is required" })}
+          {...register("fullname", { required: "Full name is required",
+             minLength: { value: 2, message: "Minimum 2 characters" }
+           })}
           placeholder="John"
-          className="mt-2 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <div className='mb-1'>
           {errors.fullname && (
@@ -81,13 +91,19 @@ const Register = () => {
         </div>
       </div>
       <div className='flex flex-col gap-2'>
+      </div>
 <div className='flex mb-2 gap-2'>
        <div className="flex flex-col relative w-1/2">
         <label className="text-gray-700 text-sm font-medium">Email:</label>
         <input
-          {...register("email", { required: "email is required" })}
+          {...register("email", { required: "email is required" ,
+            pattern: {
+    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    message: "Invalid email address"
+  }
+          })}
           placeholder="email@example.com"
-          className="mt-2 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <div className='mb-1'>
           {errors.email && (
@@ -97,10 +113,18 @@ const Register = () => {
       </div>
        <div className="flex flex-col relative w-1/2">
         <label className="text-gray-700 text-sm font-medium">Phone No:</label>
-        <input
-          {...register("phone", { required: "phone is required" })}
+        <input   type="text" inputMode="numeric"
+          {...register("phone", { 
+            required: "phone is required",
+            minLength: { value: 10, message: "Minimum 10 characters" },
+            maxLength: { value: 12, message: "Maximum 15 characters" },
+          })}
           placeholder="123-456-7890"
-          className="mt-2 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            onInput={(e) => {
+    const input = e.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9]/g, "");
+  }}
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <div className='mb-1'>
           {errors.phone && (
@@ -138,7 +162,7 @@ const Register = () => {
         <label className="text-gray-700 text-sm font-medium">Gender:</label>
         <select
           {...register("gender", { required: "gender is required" })}
-          className="mt-2 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
           
           <option value="male">Male</option>
@@ -159,7 +183,7 @@ const Register = () => {
         <input
           {...register("address", { required: "address is required" })}
           placeholder="123 Main St, City, State"
-          className="mt-2 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <div className='mb-1'>
           {errors.address && (
@@ -172,7 +196,7 @@ const Register = () => {
         <input
           {...register("occupation", { required: "occupation is required" })}
           placeholder="Software Engineer"
-          className="mt-2 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <div className='mb-1'>
           {errors.occupation && (
@@ -187,7 +211,7 @@ const Register = () => {
         <input
           {...register("emergencyContactName", { required: "emergencyContactName is required" })}
           placeholder="Guardian Name"
-          className="mt-2 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <div className='mb-1'>
           {errors.emergencyContactName && (
@@ -197,11 +221,15 @@ const Register = () => {
       </div>
        <div className="flex flex-col relative w-1/2">
         <label className="text-gray-700 text-sm font-medium">Emergency Contact Number:</label>
-        <input
-          {...register("emergencyContactNumber", { required: "emergencyContactNumber is required" })}
-          placeholder="123-456-7890"
-          className="mt-2 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-        />
+  <input
+    {...register("emergencyContactNumber", { required: "emergencyContactNumber is required" })}
+    placeholder="123-456-7890"
+    onInput={(e) => {
+      const input = e.target as HTMLInputElement;
+      input.value = input.value.replace(/[^0-9]/g, "");
+    }}
+    className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+  />
         <div className='mb-1'>
           {errors.emergencyContactNumber && (
             <span className=" text-red-500 text-sm ">{errors.emergencyContactNumber.message}</span>
@@ -209,8 +237,13 @@ const Register = () => {
         </div>
       </div>
 </div>
+
+<div>
+ <h1 className='text-2xl font-semibold text-[#004080] mb-2 mt-3'>Medical Information</h1>
 <div className='flex mb-2 gap-2'>
-       <div className="flex flex-col relative w-1/2">
+
+       <div className="flex flex-col relative w-full">
+ <label className="text-gray-700 text-sm font-medium mb-2">Primary care Physician:</label>
         <Controller
         control={control}
         name="provider"
@@ -218,7 +251,7 @@ const Register = () => {
         render={({ field }) => {
           const selected = providers.find(p => p.value === field.value) || providers[0];
           return (
-            <Listbox value={field.value} onChange={field.onChange}>
+            <Listbox value={selected.value} onChange={field.onChange}>
               <div className="relative">
                 <Listbox.Button className="relative w-full cursor-default rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm">
                   <span className="flex items-center gap-2">
@@ -266,44 +299,239 @@ const Register = () => {
           )}
         </div>
       </div>
+      
+</div>
+<div className='flex mb-2 gap-2'>
        <div className="flex flex-col relative w-1/2">
-        <label className="text-gray-700 text-sm font-medium">Emergency Contact Number:</label>
+        <label className="text-gray-700 text-sm font-medium">Insurance Provider:</label>
         <input
-          {...register("emergencyContactNumber", { required: "emergencyContactNumber is required" })}
-          placeholder="123-456-7890"
-          className="mt-2 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          {...register("insuranceProvider", { required: "insuranceProvider is required" })}
+          placeholder="Insurance Provider"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <div className='mb-1'>
-          {errors.emergencyContactNumber && (
-            <span className=" text-red-500 text-sm ">{errors.emergencyContactNumber.message}</span>
+          {errors.insuranceProvider && (
+            <span className=" text-red-500 text-sm ">{errors.insuranceProvider.message}</span>
+          )}
+        </div>
+      </div>
+       <div className="flex flex-col relative w-1/2">
+        <label className="text-gray-700 text-sm font-medium">Insurance Policy Number:</label>
+        <input
+          {...register("insurancePolicyNumber", { required: "insurancePolicyNumber is required" })}
+          placeholder="123-456-7890"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+        <div className='mb-1'>
+          {errors.insurancePolicyNumber && (
+            <span className=" text-red-500 text-sm ">{errors.insurancePolicyNumber.message}</span>
           )}
         </div>
       </div>
 </div>
+<div className='flex mb-2 gap-2'>
+       <div className="flex flex-col relative w-1/2">
+        <label className="text-gray-700 text-sm font-medium">Allergies(if any):</label>
+        <textarea
+          {...register("allergies",)}
+          placeholder="ex: Peanuts, Pollens"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+        <div className='mb-1'>
+          {errors.allergies && (
+            <span className=" text-red-500 text-sm ">{errors.allergies.message}</span>
+          )}
+        </div>
+      </div>
+       <div className="flex flex-col relative w-1/2">
+        <label className="text-gray-700 text-sm font-medium">Current Medications:</label>
+        <textarea
+          {...register("currentMedications", )}
+          placeholder="ex: Lisinopril, Metformin"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+        <div className='mb-1'>
+          {errors.currentMedications && (
+            <span className=" text-red-500 text-sm ">{errors.currentMedications.message}</span>
+          )}
+        </div>    
+      </div>
+</div>
+<div className='flex mb-2 gap-2'>
+       <div className="flex flex-col relative w-1/2">
+        <label className="text-gray-700 text-sm font-medium">Family Medical History(if relevant):</label>
+        <textarea
+          {...register("familyMedicalHistory",)}
+          placeholder="ex: Heart disease, Diabetes"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+        <div className='mb-1'>
+          {errors.familyMedicalHistory && (
+            <span className=" text-red-500 text-sm ">{errors.familyMedicalHistory.message}</span>
+          )}
+        </div>
+      </div>
+       <div className="flex flex-col relative w-1/2">
+        <label className="text-gray-700 text-sm font-medium">Past Medical History:</label>
+        <textarea
+          {...register("pastMedicalHistory",)}
+          placeholder="ex: Asthma, Diabetes"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+        <div className='mb-1'>
+          {errors.pastMedicalHistory && (
+            <span className=" text-red-500 text-sm ">{errors.pastMedicalHistory.message}</span>
+          )}
+        </div>    
+      </div>
+</div>
+</div>
+<div>
+  <h1 className='text-2xl font-semibold text-[#004080] mb-2 mt-3'>Identification and Information</h1>
+<div className='flex mb-2 gap-2'>
+  {/* Identification Type Dropdown */}
+  <div className="flex flex-col relative w-full">
+    <label className="text-gray-700 text-sm font-medium">Identification Type:</label>
+    <select
+      {...register("identificationType", { required: "Identification Type is required" })}
+      className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    >
+      <option value="">Select type</option>
+      <option value="passport">Passport</option>
+      <option value="driver_license">Driver's License</option>
+      <option value="aadhaar">Aadhaar Card</option>
+      <option value="voter_id">Voter ID</option>
+    </select>
+    {errors.identificationType && (
+      <span className="text-red-500 text-sm mt-1">{errors.identificationType.message}</span>
+    )}
+  </div>
+
+  {/* Identification Number Dropdown */}
 
 </div>
+ <div className="flex flex-col relative w-full">
+        <label className="text-gray-700 text-sm font-medium">Identification Number:</label>
+        <input
+          {...register("identificationNumber", { required: "Identification Number is required" })}
+          placeholder="ex: 123456789"
+          className="mt-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+        <div className='mb-1'>
+          {errors.identificationNumber && (
+            <span className=" text-red-500 text-sm ">{errors.identificationNumber.message}</span>
+          )}
+        </div>
+      </div>
+  <div className="flex flex-col relative w-full mb-4">
+  <label className="text-gray-700 text-sm font-medium mb-2 mt-1">Upload Document:</label>
+  <Controller
+        name="document"
+        control={control}
+        rules={{ required: "File is required" }}
+        render={({ field, fieldState }) => {
+          const { onChange, value } = field;
+          const { error } = fieldState;
+
+          const { getRootProps, getInputProps, isDragActive } = useDropzone({
+            accept: { 'application/pdf': [], 'image/*': [] },
+            multiple: false,
+            onDrop: (acceptedFiles) => onChange(acceptedFiles),
+          });
+
+          return (
+            <div >
+              <div
+                {...getRootProps()}
+                className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer ${
+                  isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                }`}
+              >
+                <input {...getInputProps()} />
+                <p className="text-gray-600 text-sm">
+                  {value?.[0]?.name || 'Drag and drop a file here, or click to select a file'}
+                </p>
+              </div>
+             
+            </div>
+          );
+        }}
+      />
+
+  {errors.document && (
+    <span className="text-red-500 text-sm mt-1">{errors.document.message}</span>
+  )}
+</div>
+
+</div>
+<h1 className='text-2xl font-semibold text-[#004080] mb-2 '>Privacy Consent</h1>
+
+<div className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="privacyConsent1"
+    {...register("privacyConsent1", { required: "Privacy consent is required" })}
+    className="form-checkbox"
+  />
+  <label htmlFor="privacyConsent1" className="text-gray-700 text-sm">
+    I consent to receive medical treatment for my health conditions.
+  </label>
+  {errors.privacyConsent1 && (
+    <p className="text-red-500 text-sm">{errors.privacyConsent1.message}</p>
+  )}
+</div>
+<div className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="privacyConsent2"
+    {...register("privacyConsent2", { required: "Privacy consent is required" })}
+    className="form-checkbox"
+  />
+  <label htmlFor="privacyConsent2" className="text-gray-700 text-sm">
+    I consent to receive medical information and updates via email and SMS.
+  </label>
+  {errors.privacyConsent2 && (
+    <p className="text-red-500 text-sm">{errors.privacyConsent2.message}</p>
+  )}
+</div>
+<div className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="privacyConsent3"
+    {...register("privacyConsent3", { required: "Privacy consent is required" })}
+    className="form-checkbox"
+  />
+  <label htmlFor="privacyConsent3" className="text-gray-700 text-sm">
+    I acknowledge that I have read and understood the privacy policy.
+  </label>
+  {errors.privacyConsent3 && (
+    <p className="text-red-500 text-sm">{errors.privacyConsent3.message}</p>
+  )}
+</div>
+
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-blue-400"
+        className="w-full py-3 mt-5 mb-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-blue-400"
       >
         Submit
       </button>
     </form>
-            </div></div>
-            <div>
-                <Image
-                            src="/assets/images/doctor_information.jpg"
-                            height={1000}
-                            width={1000}
-                            alt="patient"
-                            className=" mt-2 h-full w-full object-contain"
-                          />
-            </div>
-        </section>
-     
+            
+
+           </div></div>
+ <Image
+    src="/assets/images/doctor_information.jpg"
+    height={1000}
+    width={900}
+    alt="patient"
+    className="fixed top-[1px] h-[99%] w-[80%] object-contain right-[-140px] z-0"
+  /> 
+
+
+     </section>
     </div>
   )
 }
 
-export default Register;
+export default register;
