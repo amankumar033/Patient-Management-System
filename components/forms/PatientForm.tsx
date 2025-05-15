@@ -34,7 +34,7 @@ function isValidPhoneNumber(phone: string): boolean {
      const formattedPhone = `+${data.phone.replace(/\D/g, '')}`;
       try {
       const user = {
-        name: data.fullname,
+        fullname: data.fullname,
         email: data.email,
         phone:  formattedPhone,
       };

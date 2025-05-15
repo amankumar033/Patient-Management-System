@@ -43,12 +43,13 @@ privacyConsent: boolean;
 
 declare type CreateAppointmentParams = {
   userId: string;
-  patient: string;
-  primaryPhysician: string;
-  reason: string;
-  schedule: Date;
-  status: Status;
-  note: string | undefined;
+  primaryPhysician: string | undefined;
+  reason: string | undefined;
+  schedule: Date | undefined;
+  status: Status | undefined;
+  additionalInfo: string | undefined;
+  patientName: string | undefined;
+  timeSlot: string | undefined;
 };
 
 declare type UpdateAppointmentParams = {

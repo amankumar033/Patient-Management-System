@@ -8,7 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { Listbox } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { registerPatient } from "@/lib/actions/patient.actions";
-
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
 const providers = [
@@ -16,7 +16,7 @@ const providers = [
   { name: 'DR Remirez', value: 'dr-remirez', icon: '/assets/images/dr-remirez.png' },
   { name: 'DR Powell', value: 'dr-powell', icon: '/assets/images/dr-powell.png' },
   { name: 'DR Lee', value: 'dr-lee', icon: '/assets/images/dr-lee.png' },
-  { name: 'DR Livingstone', value: 'dr-livingstone', icon: '/assets/images/dr-livingstone.png' },
+  { name: 'DR Cruz', value: 'dr-cruz', icon: '/assets/images/dr-cruz.png' },
 ];
 
 
@@ -49,7 +49,16 @@ type FormValues = {
 
 };
 
-const Register = () => {
+const register = () => {
+    const [maxDate, setMaxDate] = useState('')
+  
+    useEffect(() => {
+      const today = new Date()
+      const yyyy = today.getFullYear()
+      const mm = String(today.getMonth()).padStart(2, '0') // Months are 0-based
+      const dd = String(today.getDate()-1).padStart(2, '0')
+      setMaxDate(`${yyyy}-${mm}-${dd}`)
+    }, [])
 const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>();
 const params = useParams();
 const router = useRouter();
@@ -183,6 +192,7 @@ router.push(`/patients/${patient.$id}/new-appointment`);
                   onChange={field.onChange}
                   dateFormat="yyyy-MM-dd"
                  placeholderText="Select your birth date"
+                 maxDate={maxDate ? new Date(maxDate) : undefined}
         className="p-1  mt-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
 
                 />
@@ -571,4 +581,4 @@ router.push(`/patients/${patient.$id}/new-appointment`);
   )
 }
 
-export default Register;
+export default register;
