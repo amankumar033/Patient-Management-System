@@ -1,15 +1,23 @@
+'use client';
 import Image from "next/image";
 import Link from "next/link";
-
+import PasskeyModal from "@/components/UI/PasskeyModal";
 import PatientForm from "@/components/forms/PatientForm";
-
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 const Home = () => {
+  const [otp, setOtp] = useState('');
+const searchParams = useSearchParams();
+  const isAdmin = searchParams!.get("admin") === "true";
+
   return (
     <div className="flex h-screen py-12 px-30 overflow-hidden bg-gray-200">
+      <div className="top-[40%]  left-[40%] absolute ">
+      {isAdmin && <PasskeyModal length={6} onChange={setOtp} />}
+      </div>
       {/* Left Side: Form with margin */}
-      <section className="flex w-1/2 px-2 justify-center   flex-col bg-white">
+      <section className="flex w-1/2 px-2 justify-center   flex-col bg-white z-5">
       <div>
-        
           <Image
             src="/assets/icons/logo-full2.png"
             height={1000}
@@ -31,7 +39,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-
+            
       {/* Right Side: Image */}
       <div className="w-1/2 h-full ">
         <Image
