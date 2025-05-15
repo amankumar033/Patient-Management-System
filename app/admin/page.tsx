@@ -55,10 +55,10 @@ const fetchPatients = async () => {
         <div className='flex flex-col gap-2 w-1/3 bg-emerald-400 rounded-lg p-4'>
           <div className='flex  gap-1 w-1/3'>
               <Image
-                src="/assets/icons/calendar-check-02.svg"
+                src="/assets/icons/calendar-check-02.png"
                 height={1000}
                 width={1000}
-                className='h-14 mt-5 w-auto object-contain'
+                className='h-12 mt-2 w-auto object-contain'
                 alt="logo"
               />
            <h1 className='mt-4 text-white text-3xl'>{scheduledCount}</h1>
@@ -78,7 +78,7 @@ const fetchPatients = async () => {
           </div>
           <h1 className='text-sm text-white'>Total No. of pending appointments</h1>
           </div>
-        <div className='flex flex-col gap-5 w-1/3 bg-purple-400 rounded-lg p-4'>
+        <div className='flex flex-col gap-5 w-1/3 bg-red-400 rounded-lg p-4'>
           <div className='flex items-center gap-2 w-1/3'>
               <Image
                 src="/assets/icons/cancelled.svg"
@@ -119,13 +119,33 @@ const fetchPatients = async () => {
           {patient.patientName}
         </td>
         <td className="p-3">{patient.schedule}</td>
-        <td
-          className={`p-3 ${
-            index === patients.length - 1 ? 'rounded-br-lg' : ''
-          }`}
-        >
-          {patient.status}
-        </td>
+        <td className="p-3">
+  <div className={`flex items-center w-30 gap-2 px-2 py-1 rounded-full text-white text-xs font-semibold
+    ${
+      patient.status === 'scheduled' ? 'bg-green-400' :
+      patient.status === 'pending' ? 'bg-blue-400' :
+      patient.status === 'cancelled' ? 'bg-red-400' :
+      'bg-gray-400'
+    }
+  `}>
+    <Image
+      src={
+        patient.status === 'scheduled'
+          ? '/assets/icons/check.svg'
+          : patient.status === 'pending'
+          ? '/assets/icons/pending.svg'
+          : patient.status === 'cancelled'
+          ? '/assets/icons/cancelled.svg'
+          : '/assets/icons/default.svg'
+      }
+      alt="status-icon"
+      width={16}
+      height={16}
+      className="object-contain"
+    />
+    {patient.status.charAt(0).toUpperCase() + patient.status.slice(1)}
+  </div>
+</td>
         <td
           className={`p-3 ${
             index === patients.length - 1 ? 'rounded-br-lg' : ''

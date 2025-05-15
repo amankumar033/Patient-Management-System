@@ -11,19 +11,19 @@ const success = () => {
   const params = useParams();
   const userid = params?.userid ?? '';
 
-  // useEffect(() => {
-  //   // Simulate page load (or replace with real data fetching)
-  //   const timer = setTimeout(() => setLoading(false), 2000); // 2 seconds
-  //   return () => clearTimeout(timer);
-  // }, []);
+  useEffect(() => {
 
-  // if (loading) {
-  //   return (
-  //     <div className="fixed inset-0 flex justify-center items-center bg-white z-50">
-  //       <img src="/assets/gifs/success.gif" alt="Loading..." className="w-100 h-100" />
-  //     </div>
-  //   );
-  // }
+    const timer = setTimeout(() => setLoading(false), 2000); // 2 seconds
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex justify-center items-center bg-white z-50">
+        <img src="/assets/gifs/success.gif" alt="Loading..." className="w-100 h-100" />
+      </div>
+    );
+  }
   return (
     <div className='flex flex-col items-center justify-center h-screen bg-white'>
           <div className='mt-5'>

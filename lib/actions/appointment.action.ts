@@ -24,7 +24,6 @@ interface RegisterPageProps {
 export const createAppointment = async (
   appointment: CreateAppointmentParams
 ) => {
-    console.log("Creating appointment with data:", appointment);
   try {
     const response = await databases.createDocument(
       DATABASE_ID!,
@@ -45,8 +44,7 @@ export async function getAllAppointments() {
       APPOINTMENT_COLLECTION_ID!,
       []
     );
-console.log("All Appointments:", response.documents);
-    return response.documents; // This is an array of all appointment objects
+    return response.documents;
   } catch (error) {
     console.error('Error fetching appointments:', error);
     return [];
