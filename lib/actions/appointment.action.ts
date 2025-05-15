@@ -38,3 +38,34 @@ export const createAppointment = async (
     throw error;
   }
 };
+export async function getAllAppointments() {
+  try {
+    const response = await databases.listDocuments(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      []
+    );
+console.log("All Appointments:", response.documents);
+    return response.documents; // This is an array of all appointment objects
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    return [];
+  }
+}
+export async function updateAppointmentStatus(
+  appointmentId: string,
+  status: string
+) {
+  try {
+    const response = await databases.updateDocument(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      appointmentId,
+      { status }
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating appointment status:", error);
+    throw error;
+  }
+}

@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { use } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
@@ -40,8 +40,11 @@ function isValidPhoneNumber(phone: string): boolean {
       };
 
       const newUser = await createUser(user);
-      if (newUser) {
-        router.push(`/patients/${newUser.$id}/register`);
+      const userId = newUser.$id;
+      if (userId) {
+   
+  router.push(`/patients/${userId}/register`);
+
         reset();
       }
     } catch (error) {

@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { verifyPasskey } from '@/lib/actions/verification.action';
+import { useRouter } from "next/navigation";
 type OtpInputProps = {
   length?: number;
   onChange: (otp: string) => void;
@@ -53,6 +54,7 @@ const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onChange }) => {
     onChange(newValues.join(''));
     focusInput(Math.min(pasteValues.length, length - 1));
   };
+  const router = useRouter();
 
 async function submitHandler(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
     event.preventDefault();
@@ -64,7 +66,7 @@ async function submitHandler(event: React.MouseEvent<HTMLButtonElement, MouseEve
     // Call verifyPasskey and handle result (async/await or .then)
     const admin = await verifyPasskey(otp);
     if (admin) {
-      alert('Passkey verified successfully!');
+     router.push('/admin');
     } else {
       alert('Invalid passkey. Please try again.');
     }

@@ -51,7 +51,8 @@ type FormValues = {
 
 const register = () => {
     const [maxDate, setMaxDate] = useState('')
-  
+
+
     useEffect(() => {
       const today = new Date()
       const yyyy = today.getFullYear()

@@ -3,6 +3,7 @@
 import { ID, Query } from "node-appwrite";
 
 import {
+  APPOINTMENT_COLLECTION_ID,
   BUCKET_ID,
   DATABASE_ID,
   ENDPOINT,
@@ -40,7 +41,7 @@ export const createUser = async (user: CreateUserParams) => {
       const existingUser = await users.list([
         Query.equal("email", [user.email]),
       ]);
-
+    console.log("Existing user found:", existingUser);
       return existingUser.users[0];
     }
     console.error("An error occurred while creating a new user:", error);
