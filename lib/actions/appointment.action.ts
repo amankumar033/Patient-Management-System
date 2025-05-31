@@ -50,12 +50,7 @@ export async function getAllAppointments() {
     return [];
   }
 }
-export async function updateAppointmentStatus(
-  appointmentId: string,
-  status: string
-) {
-  try {
-    const response = await databases.updateDocument(
+exses.updateDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       appointmentId,
