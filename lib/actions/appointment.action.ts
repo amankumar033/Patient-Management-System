@@ -55,3 +55,15 @@ export async function updateAppointmentStatus(
   status: string
 ) {
   try {
+    const response = await databases.updateDocument(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      appointmentId,
+      { status }
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating appointment status:", error);
+    throw error;
+  }
+}
