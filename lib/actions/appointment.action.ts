@@ -49,7 +49,7 @@ export async function getAllAppointments() {
     console.error('Error fetching appointments:', error);
     return [];
   }
-}
+
 export async function updateAppointmentStatus(
   appointmentId: string,
   status: string
