@@ -55,10 +55,7 @@ export async function updateAppointmentStatus(
   status: string
 ) {
   try {
-    const response = await databases.updateDocument(
-      DATABASE_ID!,
-      APPOINTMENT_COLLECTION_ID!,
-      appointmentId,
+    const response 
       { status }
     );
     return response;
