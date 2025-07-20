@@ -11,7 +11,15 @@ type OtpInputProps = {
 
 const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onChange }) => {
   const [values, setValues] = useState<string[]>(Array(length).fill(''));
-  c
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  const focusInput = (index: number) => {
+    inputsRef.current[index]?.focus();
+  };
+
+  const handleChange = (index: number, value: string) => {
+    if (!/^\d?$/.test(value)) return; // only allow single digit numbers or empty
+
     const newValues = [...values];
     newValues[index] = value;
     setValues(newValues);
